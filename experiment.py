@@ -15,11 +15,11 @@ from audio_loader import BASE_NOTES, load_chord_pair_audio
 # 実験設定
 # ==============================================================================
 # 今回の実験で使用する和音タイプ（chord_pairs.py のキーを指定）
-ACTIVE_CHORD_TYPES = ["major"]
+ACTIVE_CHORD_TYPES = ["major", "minor"]
 
 # 1つの和音タイプにつき何セット（何周）行うか
 # 例: 4セット × 3通り(AvsB, BvsC, CvsA) = 12試行
-NUM_SETS_PER_CHORD = 4
+NUM_SETS_PER_CHORD = 1
 # ==============================================================================
 
 
