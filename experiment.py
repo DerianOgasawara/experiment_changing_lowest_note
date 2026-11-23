@@ -92,7 +92,7 @@ def run() -> dict:
         """)
 
         preview_trials = generate_trial_list()
-        st.info(f"全 **{len(preview_trials)}** 試行の比較タスクを実施します。ヘッドホンまたはイヤホンの着用を推奨します。")
+        st.info(f"全 **{len(preview_trials)}** 試行の比較タスクを実施します。")
 
         if st.button("実験を開始する", type="primary"):
             st.session_state.trials = preview_trials
