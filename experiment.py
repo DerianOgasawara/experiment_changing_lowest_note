@@ -18,7 +18,7 @@ from audio_loader import load_chord_pair_audio, get_current_trial_base_note
 ACTIVE_CHORD_TYPES = ["major", "minor"]
 
 # 全ペア組み合わせ（三和音なら3通り）を何周繰り返すか（例: 4周 × 3通り = 12試行）
-REPEATS_PER_PAIR = 5
+REPEATS_PER_PAIR = 1
 # ==============================================================================
 
 
