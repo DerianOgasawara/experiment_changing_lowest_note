@@ -179,8 +179,6 @@ def run() -> dict:
                 "winner_label": winner["label"],           # 例: "基本形 ↔ 第2転回形"
                 "winner_interval": winner["bass_interval"],# 例: "完全5度"
                 "winner_semitones": winner["semitones"],   # 例: 7
-                "loser_id": loser["id"],
-                "loser_semitones": loser["semitones"],
                 "comparison_key": f"{pair_ids[0]}_vs_{pair_ids[1]}"
             })
 
