@@ -142,7 +142,10 @@ def run() -> dict:
 
         st.write("---")
         st.write("**どちらの方が、繰り返される2つの和音の「響きの変化（違いの大きさ）」をより強く感じますか？**")
-        st.write(":red[変化の大きい方を選んでください]")
+        st.write(
+    　　　　'<span style="color: #FF0000; font-weight: bold;"> 変化の大きい方を選んでください </span>',
+   　　　　 unsafe_allow_html=True,
+　　　　 )
 
         selected_side = None
 
