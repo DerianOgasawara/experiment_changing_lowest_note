@@ -105,7 +105,7 @@ def run() -> dict:
         """)
 
         preview_trials = generate_trial_list()
-        st.info(f"全 **{len(preview_trials)}** 試行の比較タスクを実施します。ヘッドホンまたはイヤホンの着用を推奨します。")
+        st.info(f"全 **{len(preview_trials)}** 試行の比較タスクを実施します。")
 
         if st.button("実験を開始する", type="primary"):
             st.session_state.trials = preview_trials
@@ -155,7 +155,7 @@ def run() -> dict:
 
         st.write("---")
         st.write("**どちらの方が、繰り返される2つの和音の「響きの変化（違いの大きさ）」をより強く感じますか？**")
-        st.write("red[変化の大きい方を選んでください!]")
+        st.write(":red[変化の大きい方を選んでください!]")
 
         selected_side = None
 
