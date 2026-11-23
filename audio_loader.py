@@ -1,11 +1,9 @@
 """
 audio_loader.py
 自作した転回形ループWAVファイルを読み込み、バイナリ形式で返すモジュール。
-試行ごとに基準音（C3〜B3）をランダムに選択して保持する。
 """
 
 import os
-import random
 import streamlit as st
 from chord_pairs import CHORD_CONFIGS
 
@@ -13,7 +11,8 @@ AUDIO_DIR = "audio"
 
 # 基準音リスト（用意したキーに合わせて増減可能）
 BASE_NOTES = [
-    "C3","F3", "G3"
+    "C3", "Cs3", "D3", "Ds3", "E3", "F3",
+    "Fs3", "G3", "Gs3", "A3", "As3", "B3"
 ]
 
 NOTE_ALT_MAP = {
@@ -43,23 +42,14 @@ def check_audio_files(active_chord_types: list[str]) -> list[str]:
     return missing_files
 
 
-def get_current_trial_base_note() -> str:
+def load_chord_pair_audio(
+    chord_type: str,
+    base_note: str,
+    filename: str,
+    active_chord_types: list[str]
+) -> bytes:
     """
-    試行ごとにランダムな基準音を決定・保持する（同じ試行内ではAとBで同じ基準音を使用）。
-    """
-    if "trial_base_notes" not in st.session_state:
-        st.session_state.trial_base_notes = {}
-
-    current_idx = st.session_state.get("current_trial_idx", 0)
-    if current_idx not in st.session_state.trial_base_notes:
-        st.session_state.trial_base_notes[current_idx] = random.choice(BASE_NOTES)
-
-    return st.session_state.trial_base_notes[current_idx]
-
-
-def load_chord_pair_audio(chord_type: str, filename: str, active_chord_types: list[str]) -> bytes:
-    """
-    指定された和音タイプ・ファイル名のWAVデータを読み込む。
+    指定された和音タイプ・基準音・ファイル名のWAVデータを読み込む。
     """
     if "audio_checked" not in st.session_state:
         st.session_state.audio_checked = True
@@ -71,7 +61,6 @@ def load_chord_pair_audio(chord_type: str, filename: str, active_chord_types: li
             if len(missing) > 15:
                 st.write(f"  ...他 {len(missing) - 15} 件")
 
-    base_note = get_current_trial_base_note()
     alt_base = NOTE_ALT_MAP.get(base_note, base_note)
 
     paths_to_check = [
