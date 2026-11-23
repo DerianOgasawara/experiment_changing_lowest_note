@@ -9,16 +9,17 @@ import json
 import streamlit as st
 
 from chord_pairs import CHORD_CONFIGS, get_pairs_by_chord_type
-from audio_loader import load_chord_pair_audio, get_current_trial_base_note
+from audio_loader import BASE_NOTES, load_chord_pair_audio
 
 # ==============================================================================
 # 実験設定
 # ==============================================================================
 # 今回の実験で使用する和音タイプ（chord_pairs.py のキーを指定）
-ACTIVE_CHORD_TYPES = ["major", "minor"]
+ACTIVE_CHORD_TYPES = ["major"]
 
-# 全ペア組み合わせ（三和音なら3通り）を何周繰り返すか（例: 4周 × 3通り = 12試行）
-REPEATS_PER_PAIR = 1
+# 1つの和音タイプにつき何セット（何周）行うか
+# 例: 4セット × 3通り(AvsB, BvsC, CvsA) = 12試行
+NUM_SETS_PER_CHORD = 4
 # ==============================================================================
 
 
@@ -38,34 +39,46 @@ def init_session_state():
 
 def generate_trial_list() -> list[dict]:
     """
-    各和音タイプの全ペア組み合わせを生成し、左右の提示順をカウンターバランスしてシャッフルする。
+    セット単位（AvsB, BvsC, CvsA）で同じ調（基準音）を割り当て、
+    全和音タイプ・全セットをまとめてランダムシャッフルする。
     """
     raw_trials = []
+    set_counter = 1
 
     for chord_type in ACTIVE_CHORD_TYPES:
         pairs = get_pairs_by_chord_type(chord_type)
-        # 3つのペア (A, B, C) から2つを選ぶ全組み合わせ (A vs B, B vs C, C vs A)
         combinations = list(itertools.combinations(pairs, 2))
 
-        for rep in range(REPEATS_PER_PAIR):
+        # セット数分の基準音を選ぶ（12音以内なら重複なし、超える場合はランダム補完）
+        if NUM_SETS_PER_CHORD <= len(BASE_NOTES):
+            chosen_notes = random.sample(BASE_NOTES, NUM_SETS_PER_CHORD)
+        else:
+            chosen_notes = [random.choice(BASE_NOTES) for _ in range(NUM_SETS_PER_CHORD)]
+
+        for rep, base_note in enumerate(chosen_notes):
+            current_set_id = f"{chord_type}_set{set_counter}"
+            set_counter += 1
+
             for item_1, item_2 in combinations:
-                # 偶数周と奇数周で左右の配置を反転させて順序効果を完全に相殺
+                # 左右の配置をカウンターバランス
                 if (rep % 2 == 0) == random.choice([True, False]):
                     left_item, right_item = item_1, item_2
                 else:
                     left_item, right_item = item_2, item_1
 
                 raw_trials.append({
+                    "set_id": current_set_id,
                     "chord_type": chord_type,
                     "chord_name": CHORD_CONFIGS[chord_type]["name"],
+                    "base_note": base_note,
                     "left": left_item,
                     "right": right_item,
                 })
 
-    # 全体の試行順をランダムにシャッフル
+    # 全体の試行順を単純にランダムシャッフル（同じ調が連続しても許容）
     random.shuffle(raw_trials)
 
-    # 試行番号を付与
+    # シャッフル後の通し番号を付与
     for idx, trial in enumerate(raw_trials):
         trial["trial_id"] = idx + 1
 
@@ -92,13 +105,12 @@ def run() -> dict:
         """)
 
         preview_trials = generate_trial_list()
-        st.info(f"全 **{len(preview_trials)}** 試行の比較タスクを実施します。")
+        st.info(f"全 **{len(preview_trials)}** 試行の比較タスクを実施します。ヘッドホンまたはイヤホンの着用を推奨します。")
 
         if st.button("実験を開始する", type="primary"):
             st.session_state.trials = preview_trials
             st.session_state.current_trial_idx = 0
             st.session_state.results = []
-            st.session_state.trial_base_notes = {}
             st.session_state.exp_started = True
             st.session_state.exp_finished = False
             st.rerun()
@@ -125,16 +137,17 @@ def run() -> dict:
             st.markdown("### パターン 1")
             audio_1 = load_chord_pair_audio(
                 current["chord_type"],
+                current["base_note"],
                 current["left"]["filename"],
                 ACTIVE_CHORD_TYPES
             )
-            # loop=True によりブラウザ上でシームレスにループ再生
             st.audio(audio_1, format="audio/wav", loop=True)
 
         with col_2:
             st.markdown("### パターン 2")
             audio_2 = load_chord_pair_audio(
                 current["chord_type"],
+                current["base_note"],
                 current["right"]["filename"],
                 ACTIVE_CHORD_TYPES
             )
@@ -142,7 +155,7 @@ def run() -> dict:
 
         st.write("---")
         st.write("**どちらの方が、繰り返される2つの和音の「響きの変化（違いの大きさ）」をより強く感じますか？**")
-        st.write(":red[変化の大きい方を選んでください]")
+        st.write("red[変化の大きい方を選んでください!]")
 
         selected_side = None
 
@@ -170,15 +183,15 @@ def run() -> dict:
 
             st.session_state.results.append({
                 "trial_no": idx + 1,
+                "set_id": current["set_id"],               # 同じ調の3つ組を識別するID
                 "chord_type": current["chord_type"],
-                "base_note": get_current_trial_base_note(),
+                "base_note": current["base_note"],
                 "pattern_1_id": left_item["id"],
                 "pattern_2_id": right_item["id"],
                 "selected_pattern": "1" if selected_side == "left" else "2",
-                "winner_id": winner["id"],                 # ヒストグラム集計用（変化が大きいと選ばれたペアID）
-                "winner_label": winner["label"],           # 例: "基本形 ↔ 第2転回形"
-                "winner_interval": winner["bass_interval"],# 例: "完全5度"
-                "winner_semitones": winner["semitones"],   # 例: 7
+                "winner_id": winner["id"],
+                "winner_label": winner["label"],
+                "winner_interval": winner["bass_interval"],
                 "comparison_key": f"{pair_ids[0]}_vs_{pair_ids[1]}"
             })
 
@@ -199,6 +212,7 @@ def run() -> dict:
 
         payload = {
             "active_chord_types": ACTIVE_CHORD_TYPES,
+            "num_sets_per_chord": NUM_SETS_PER_CHORD,
             "total_trials": len(st.session_state.results),
             "trials": st.session_state.results
         }
