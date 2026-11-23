@@ -122,7 +122,7 @@ def run() -> dict:
         col_1, col_2 = st.columns(2)
 
         with col_1:
-            st.markdown("### 🎵 パターン 1")
+            st.markdown("### パターン 1")
             audio_1 = load_chord_pair_audio(
                 current["chord_type"],
                 current["left"]["filename"],
@@ -132,7 +132,7 @@ def run() -> dict:
             st.audio(audio_1, format="audio/wav", loop=True)
 
         with col_2:
-            st.markdown("### 🎵 パターン 2")
+            st.markdown("### パターン 2")
             audio_2 = load_chord_pair_audio(
                 current["chord_type"],
                 current["right"]["filename"],
@@ -147,10 +147,10 @@ def run() -> dict:
 
         btn_col1, btn_col2 = st.columns(2)
         with btn_col1:
-            if st.button("🎵 パターン 1 の方が変化が大きい", key=f"btn_1_{idx}", use_container_width=True):
+            if st.button("パターン 1 ", key=f"btn_1_{idx}", use_container_width=True):
                 selected_side = "left"
         with btn_col2:
-            if st.button("🎵 パターン 2 の方が変化が大きい", key=f"btn_2_{idx}", use_container_width=True):
+            if st.button("パターン 2 ", key=f"btn_2_{idx}", use_container_width=True):
                 selected_side = "right"
 
         # 回答後の記録と次の試行への遷移
