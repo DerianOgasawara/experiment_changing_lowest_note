@@ -11,8 +11,7 @@ AUDIO_DIR = "audio"
 
 # 基準音リスト（用意したキーに合わせて増減可能）
 BASE_NOTES = [
-    "C3", "Cs3", "D3", "Ds3", "E3", "F3",
-    "Fs3", "G3", "Gs3", "A3", "As3", "B3"
+    "C3", "F3", "G3"
 ]
 
 NOTE_ALT_MAP = {
