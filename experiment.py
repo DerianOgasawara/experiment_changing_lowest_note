@@ -142,6 +142,7 @@ def run() -> dict:
 
         st.write("---")
         st.write("**どちらの方が、繰り返される2つの和音の「響きの変化（違いの大きさ）」をより強く感じますか？**")
+        st.write(":red[変化の大きい方を選んでください]")
 
         selected_side = None
 
