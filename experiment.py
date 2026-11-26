@@ -15,7 +15,7 @@ from audio_loader import BASE_NOTES, load_chord_pair_audio
 # 実験設定
 # ==============================================================================
 # 今回の実験で使用する和音タイプ（chord_pairs.py のキーを指定）
-ACTIVE_CHORD_TYPES = ["major", "minor"]
+ACTIVE_CHORD_TYPES = ["major"]
 
 # 1つの和音タイプにつき何セット（何周）行うか
 # 例: 4セット × 3通り(AvsB, BvsC, CvsA) = 12試行
@@ -154,8 +154,8 @@ def run() -> dict:
             st.audio(audio_2, format="audio/wav", loop=True)
 
         st.write("---")
-        st.write("**どちらの方が、繰り返される2つの和音の「響きの変化（違いの大きさ）」をより強く感じますか？**")
-        st.write(":red[変化の大きい方を選んでください!]")
+        st.write("**どちらの方が、繰り返される2つの和音が「似ている」と感じますか？**")
+        st.write(":red[似ている方を選んでください!]")
 
         selected_side = None
 
